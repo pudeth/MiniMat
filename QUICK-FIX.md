@@ -1,8 +1,9 @@
-# ✅ RAILWAY DEPLOYMENT ERROR - FIXED!
+# ✅ RAILWAY DEPLOYMENT ERRORS - ALL FIXED!
 
 ## What Was Wrong?
 1. Railway was detecting your Laravel project as a Rails project (Railpack error) - FIXED ✅
 2. PHP version mismatch: Dependencies require PHP 8.2+, but Railway was using PHP 8.2.30 with locked packages requiring PHP 8.4+ - FIXED ✅
+3. PHP 8.2+ strict typing error: TelegramService trying to assign null to string property - FIXED ✅
 
 ## What Was Fixed?
 
@@ -19,8 +20,18 @@ Updated all configurations to use PHP 8.3 and ignore platform requirements:
 1. ✅ **nixpacks.toml** - Updated to PHP 8.3 with `--ignore-platform-reqs`
 2. ✅ **railway.json** - Added `--ignore-platform-reqs` flag
 3. ✅ **composer.json** - Updated PHP requirement to ^8.2
-4. ✅ **Dockerfile** - Updated to PHP 8.3
-5. ✅ **nginx.conf** - Updated to PHP 8.3-FPM
+4. ✅ **Dockerfile** - Updated to PHP 8.3-FPM
+5. ✅ **nginx.conf** - Updated to PHP 8.3-FPM socket
+
+### Round 3 - Strict Type Error
+Fixed TelegramService null assignment issue:
+1. ✅ **TelegramService.php** - Made properties nullable (`?string`) and added default empty strings
+2. ✅ **.env.example** - Updated with empty default values to prevent null assignments
+
+## The Technical Issue
+In PHP 8.2+, strict typing doesn't allow assigning `null` to properties typed as `string`. The TelegramService was trying to assign `config('services.telegram.bot_token')` which could be null if not set in environment variables.
+
+**Solution:** Changed property types from `string` to `?string` (nullable) and provided default empty strings.
 
 ## Next Steps
 
@@ -46,13 +57,16 @@ DB_DATABASE=${MYSQLDATABASE}
 DB_USERNAME=${MYSQLUSER}
 DB_PASSWORD=${MYSQLPASSWORD}
 
-# Your API Keys
-BAKONG_TOKEN=your_token
-TELEGRAM_BOT_TOKEN=your_token
-TELEGRAM_CHAT_ID=your_chat_id
-GOOGLE_CLIENT_ID=your_client_id
-GOOGLE_CLIENT_SECRET=your_secret
+# Your API Keys (can be empty initially, add later)
+BAKONG_TOKEN=
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+MERCHANT_BAKONG_ID=
 ```
+
+**Note:** You can leave API keys empty initially. The app will now handle null values gracefully.
 
 ### 3. Add MySQL Database
 In Railway:
@@ -79,9 +93,9 @@ User::create(['name'=>'Admin','email'=>'admin@example.com','password'=>bcrypt('p
 ✅ Build should now succeed  
 ✅ PHP 8.3 will be used  
 ✅ Dependencies will install with `--ignore-platform-reqs`  
+✅ No null assignment errors  
 ✅ App should deploy successfully  
-✅ No more "Railpack" error  
-✅ No more PHP version conflicts  
+✅ App will work even without API keys initially  
 
 ## If Still Failing?
 
@@ -98,4 +112,4 @@ User::create(['name'=>'Admin','email'=>'admin@example.com','password'=>bcrypt('p
 
 ---
 
-**Both errors are fixed! Your next deployment should work.** 🚀
+**All three errors are fixed! Your deployment should work now.** 🚀
