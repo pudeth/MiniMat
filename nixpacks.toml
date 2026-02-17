@@ -8,13 +8,8 @@ cmds = [
 
 [phases.build]
 cmds = [
-    "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
+    "chmod +x start.sh"
 ]
 
 [start]
-cmd = "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
-
-# Note: Run migrations manually in Railway shell after first deployment:
-# php artisan migrate --force
+cmd = "bash start.sh"
