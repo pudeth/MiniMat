@@ -15,7 +15,7 @@ A Laravel-based Point of Sale (POS) system with KHQR payment integration, custom
 
 ## Requirements
 
-- PHP >= 8.1
+- PHP >= 8.2
 - MySQL >= 5.7
 - Composer
 - Node.js & NPM (optional, for asset compilation)

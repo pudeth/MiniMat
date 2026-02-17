@@ -3,7 +3,7 @@
     "type": "project",
     "description": "KHQR Payment with Telegram Notification",
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "laravel/framework": "^10.0",
         "guzzlehttp/guzzle": "^7.0",
         "laravel/tinker": "^2.11",
@@ -25,5 +25,14 @@
             "@php artisan package:discover --ansi"
         ]
     },
-    "minimum-stability": "stable"
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "*": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

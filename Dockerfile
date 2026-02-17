@@ -1,5 +1,5 @@
 # Use official PHP image
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +31,7 @@ COPY . /app
 COPY nginx.conf /etc/nginx/sites-available/default
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # Set permissions
 RUN chown -R www-data:www-data /app \
@@ -45,5 +45,5 @@ EXPOSE 80
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
-    service php8.2-fpm start && \
+    service php8.3-fpm start && \
     nginx -g 'daemon off;'
