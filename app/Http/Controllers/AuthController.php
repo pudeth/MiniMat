@@ -52,45 +52,20 @@ class AuthController extends Controller
 
     public function redirectToGoogle()
     {
-        // Apply SSL certificate fix before redirecting
-        $this->applySslFix();
-        
-        // Configure Socialite with SSL settings
-        $driver = Socialite::driver('google');
-        
-        // Set additional configuration for SSL
-        $driver->setHttpClient(new \GuzzleHttp\Client([
-            'verify' => base_path('cacert.pem'),
-            'timeout' => 30,
-            'curl' => [
-                CURLOPT_CAINFO => base_path('cacert.pem'),
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
-            ]
-        ]));
-        
-        return $driver->redirect();
+        try {
+            return Socialite::driver('google')->redirect();
+        } catch (Exception $e) {
+            \Log::error('Google OAuth Redirect Error: ' . $e->getMessage());
+            return redirect('/login')->withErrors([
+                'email' => 'Unable to connect to Google. Please try again or use email/password login.',
+            ]);
+        }
     }
 
     public function handleGoogleCallback()
     {
         try {
-            // Apply SSL certificate fix before making API calls
-            $this->applySslFix();
-            
-            // Configure Socialite with SSL settings
-            $driver = Socialite::driver('google');
-            $driver->setHttpClient(new \GuzzleHttp\Client([
-                'verify' => base_path('cacert.pem'),
-                'timeout' => 30,
-                'curl' => [
-                    CURLOPT_CAINFO => base_path('cacert.pem'),
-                    CURLOPT_SSL_VERIFYPEER => true,
-                    CURLOPT_SSL_VERIFYHOST => 2,
-                ]
-            ]));
-            
-            $googleUser = $driver->user();
+            $googleUser = Socialite::driver('google')->user();
             
             $user = User::where('google_id', $googleUser->getId())
                 ->orWhere('email', $googleUser->getEmail())
@@ -136,10 +111,12 @@ class AuthController extends Controller
 
         } catch (Exception $e) {
             // Log the error for debugging
-            \Log::error('Google OAuth Error: ' . $e->getMessage());
+            \Log::error('Google OAuth Callback Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return redirect('/login')->withErrors([
-                'email' => 'Unable to login with Google: ' . $e->getMessage(),
+                'email' => 'Unable to login with Google. Please try email/password login instead.',
             ]);
         }
     }
@@ -150,42 +127,5 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/login');
-    }
-
-    /**
-     * Apply SSL certificate fix for cURL requests
-     */
-    protected function applySslFix()
-    {
-        $certPath = base_path('cacert.pem');
-        
-        if (file_exists($certPath)) {
-            // Set environment variables
-            putenv("CURL_CA_BUNDLE={$certPath}");
-            putenv("SSL_CERT_FILE={$certPath}");
-            
-            // Set ini settings
-            ini_set('curl.cainfo', $certPath);
-            ini_set('openssl.cafile', $certPath);
-            
-            // Configure Socialite to use our SSL certificate
-            config(['services.google.guzzle' => [
-                'verify' => $certPath,
-                'timeout' => 30,
-                'curl' => [
-                    CURLOPT_CAINFO => $certPath,
-                    CURLOPT_SSL_VERIFYPEER => true,
-                    CURLOPT_SSL_VERIFYHOST => 2,
-                ]
-            ]]);
-            
-            \Log::info('SSL fix applied for Google OAuth request', [
-                'cert_path' => $certPath,
-                'cert_size' => filesize($certPath)
-            ]);
-        } else {
-            \Log::error('SSL certificate file not found: ' . $certPath);
-            throw new Exception('SSL certificate configuration error. Please ensure cacert.pem exists.');
-        }
     }
 }
