@@ -27,3 +27,4 @@ verify-credentials.php
 view-all-data.php
 *.txt
 .nixpacks
+.env.railway.complete
