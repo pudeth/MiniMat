@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramService
 {
-    protected string $botToken;
-    protected string $chatId;
+    protected ?string $botToken;
+    protected ?string $chatId;
     protected string $apiUrl = 'https://api.telegram.org/bot';
 
     public function __construct()
     {
-        $this->botToken = config('services.telegram.bot_token');
-        $this->chatId = config('services.telegram.chat_id');
+        $this->botToken = config('services.telegram.bot_token') ?? '';
+        $this->chatId = config('services.telegram.chat_id') ?? '';
     }
 
     /**
