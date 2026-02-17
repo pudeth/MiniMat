@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["php83", "php83Extensions.mbstring", "php83Extensions.pdo", "php83Extensions.pdo_mysql", "php83Extensions.tokenizer", "php83Extensions.xml", "php83Extensions.ctype", "php83Extensions.json", "php83Extensions.bcmath", "php83Extensions.fileinfo", "php83Extensions.openssl"]
+nixPkgs = ["php83", "php83Extensions.mbstring", "php83Extensions.pdo", "php83Extensions.pdo_mysql", "php83Extensions.tokenizer", "php83Extensions.xml", "php83Extensions.ctype", "php83Extensions.json", "php83Extensions.bcmath", "php83Extensions.fileinfo", "php83Extensions.openssl", "bash"]
 
 [phases.install]
 cmds = [
@@ -8,7 +8,11 @@ cmds = [
 
 [phases.build]
 cmds = [
-    "chmod +x start.sh"
+    "chmod +x start.sh",
+    "mkdir -p storage/framework/{sessions,views,cache}",
+    "mkdir -p storage/logs",
+    "mkdir -p bootstrap/cache",
+    "chmod -R 775 storage bootstrap/cache"
 ]
 
 [start]
